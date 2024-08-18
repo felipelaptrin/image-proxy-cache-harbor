@@ -1,0 +1,45 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.12.0/.schema/devbox.schema.json",
+  "packages": [
+    "kind@0.23.0",
+    "kubectl@1.30.2",
+    "kfilt@0.0.8",
+    "kubernetes-helm@3.15.3",
+    "opentofu@1.8.0",
+  ],
+  "env": {
+    "KIND_EXPERIMENTAL_DOCKER_NETWORK": "custom-kind-network"
+  },
+  "shell": {
+    "scripts": {
+      "init": [
+        "kind create cluster --config kind.yaml",
+        "kustomize build metallb --enable-helm | kfilt -i kind=CustomResourceDefinition | kubectl apply -f -",
+        "kustomize build metallb --enable-helm | kfilt -i kind=CustomResourceDefinition | kubectl wait --for condition=established --timeout=60s -f -",
+        "kustomize build metallb --enable-helm | kubectl apply -f -",
+        "echo '[INFO] Waiting metallb be ready...'",
+        "kubectl wait -n metallb -l app.kubernetes.io/component=controller --for=condition=ready pod --timeout=120s",
+        "kustomize build ingress-nginx --enable-helm | kubectl apply -f -",
+        "echo '[INFO] Waiting ingress-nginx be ready...'",
+        "kubectl wait -n ingress-nginx -l app.kubernetes.io/component=controller --for=condition=ready pod --timeout=120s",
+        "kustomize build harbor --enable-helm | kubectl apply -f -",
+      ],
+      "app-with-kustomize": [
+        "kubectl apply -k apps/app-with-kustomize/local",
+      ],
+      "app-with-helm": [
+        "helm repo add grafana https://grafana.github.io/helm-charts",
+        "helm repo update",
+        "helm install grafana grafana/grafana --version 8.4.1 --values apps/app-with-helm/values.yaml"
+      ],
+      "destroy": [
+        "kind delete cluster",
+      ],
+      "proxy-cache": [
+        "cd terraform",
+        "tofu init",
+        "tofu apply -var-file=vars.tfvars -auto-approve",
+      ]
+    },
+  },
+}
