@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app-with-kustomize
+  name: app-with-kustomize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-with-kustomize
+  template:
+    metadata:
+      labels:
+        app: app-with-kustomize
+    spec:
+      containers:
+        - image: nginx:1.26-alpine
+          name: nginx

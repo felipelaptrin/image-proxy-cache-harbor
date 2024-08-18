@@ -1,0 +1,7 @@
+apiVersion: builtin
+kind: PrefixTransformer
+metadata:
+  name: image-prefix
+prefix: harbor.ingress.local/proxy_cache/
+fieldSpecs:
+  - path: spec/template/spec/containers/image

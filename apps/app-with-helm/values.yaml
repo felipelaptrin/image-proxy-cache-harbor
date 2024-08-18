@@ -1,0 +1,4 @@
+global:
+  imageRegistry: harbor.ingress.local/proxy_cache
+  imagePullSecrets:
+    - regcred-harbor
