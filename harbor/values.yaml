@@ -1,0 +1,11 @@
+externalURL: https://harbor.ingress.local
+harborAdminPassword: admin
+expose:
+  type: ingress
+  ingress:
+    controller: default
+    className: nginx
+    hosts:
+      core: harbor.ingress.local
+  tls:
+    certSource: auto
